@@ -1,0 +1,41 @@
+{
+  "name": "@kyros/web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Financial OS for Spanish SMEs",
+  "workspaces": [
+    "apps/api",
+    "apps/web",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npx next dev",
+    "build": "next build",
+    "test": "pnpm -r run test",
+    "start": "next start",
+    "lint": "next lint",
+    "format": "pnpm -r run format"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.23",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.18",
+    "turbo": "^1.11.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@simplewebauthn/browser": "^13.2.2",
+    "@simplewebauthn/server": "^13.2.2",
+    "@simplewebauthn/types": "^12.0.0",
+    "@stellar/stellar-sdk": "^14.4.3",
+    "next": "16.1.1",
+    "next-auth": "^4.24.11",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "vault": "workspace:*"
+  }
+}

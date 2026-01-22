@@ -1,0 +1,26 @@
+{
+  "name": "kyros",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Financial OS for Spanish SMEs",
+   "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "pnpm -r --parallel run dev",
+    "dev:web": "pnpm -C apps/web dev",
+    "dev:api": "pnpm -C apps/api dev",
+    "build": "pnpm -r --parallel run build",
+    "test": "pnpm -r run test",
+    "lint": "pnpm -r run lint",
+    "format": "pnpm -r run format"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.18",
+    "eslint": "^8.56.0",
+    "prettier": "^3.1.1",
+    "turbo": "^1.11.0",
+    "typescript": "^5.3.3"
+  }
+}
