@@ -16,7 +16,7 @@ export default function Home() {
             K
           </div>
           <h2 className="text-blue-500 font-mono text-sm font-bold uppercase tracking-[0.3em]">
-            Project Kairos
+            Kyros
           </h2>
         </div>
 

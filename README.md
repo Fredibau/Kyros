@@ -1,4 +1,4 @@
-# Kyros (Project Kairos)
+# Kyros
 
 Automated tax withholding for freelancers and SMEs, powered by Stellar.
 Connect your bank, reserve VAT/income tax in a non-custodial Soroban vault,
@@ -7,7 +7,7 @@ and put idle tax balances to work.
 This repository is prepared for our application to the Stellar Community Fund
 (SCF) Build track.
 
-![Kyros landing page: onboarding and value proposition](resources/LandingPage.jpg)
+![Kyros landing page: onboarding](resources/LandingPage.jpg)
 
 ## Problem
 Freelancers and small businesses often under-save for taxes. When they do set
