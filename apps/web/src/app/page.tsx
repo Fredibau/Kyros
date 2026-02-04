@@ -45,7 +45,7 @@ export default function Home() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full mt-12 pt-12 border-t border-gray-900 animate-in fade-in duration-1000 delay-700">
           <div className="p-4">
             <h3 className="font-bold text-white mb-1">Open Banking</h3>
-            <p className="text-sm text-gray-500">Real-time income detection via TrueLayer.</p>
+            <p className="text-sm text-gray-500">Real-time income detection.</p>
           </div>
           <div className="p-4">
             <h3 className="font-bold text-white mb-1">Soroban Vault</h3>

@@ -46,7 +46,8 @@ export default function DashboardPage() {
   
   // Vault & Asset State (EURC)
   const [vaultBalance, setVaultBalance] = useState<bigint>(BigInt(0));
-  const [walletBalance, setWalletBalance] = useState<string>("0");
+  const [walletBalanceTestnet, setWalletBalanceTestnet] = useState<string>("0");
+  const [walletBalanceMainnet, setWalletBalanceMainnet] = useState<string>("0");
   const [decryptedSecret, setDecryptedSecret] = useState<string | null>(null);
   const [stellarAddress, setStellarAddress] = useState<string | null>(null);
   const [amount, setAmount] = useState<string>("");
@@ -61,6 +62,7 @@ export default function DashboardPage() {
   // UI State
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<string>("");
+  const [isFunding, setIsFunding] = useState(false);
 
   const client = new Client({
     ...networks.testnet,
@@ -108,7 +110,9 @@ export default function DashboardPage() {
 
     // 3. Load Vault Balance if we have a stellar address
     if (walletAddressParam || sessionWallet) {
-      fetchVaultBalance(walletAddressParam || sessionWallet || "");
+      const targetAddress = walletAddressParam || sessionWallet || "";
+      fetchVaultBalance(targetAddress);
+      fetchMainnetBalance(targetAddress);
     }
   }, [router, session, sessionStatus]);
 
@@ -176,11 +180,11 @@ export default function DashboardPage() {
       return;
     }
     try {
-      // 1. Fetch Wallet Balance (Horizon) - Development Only
+      // 1. Fetch Wallet Balance (Testnet Horizon) - Development Only
       const server = new Horizon.Server("https://horizon-testnet.stellar.org");
       const accountData = await server.loadAccount(address);
       const nativeBalance = accountData.balances.find(b => b.asset_type === 'native');
-      setWalletBalance(nativeBalance?.balance || "0");
+      setWalletBalanceTestnet(nativeBalance?.balance || "0");
 
       // 2. Fetch Vault Balance (Soroban)
       const NATIVE_XLM = "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC";
@@ -191,11 +195,33 @@ export default function DashboardPage() {
       const message = err?.message || "";
       const notFound = status === 404 || /not found/i.test(message);
       if (notFound) {
-        setWalletBalance("0");
+        setWalletBalanceTestnet("0");
         setVaultBalance(BigInt(0));
         return;
       }
       console.error("Error fetching balance:", err);
+    }
+  };
+
+  const fetchMainnetBalance = async (address?: string | null) => {
+    if (!address) {
+      console.warn("Missing wallet address; skipping mainnet balance fetch.");
+      return;
+    }
+    try {
+      const server = new Horizon.Server("https://horizon.stellar.org");
+      const accountData = await server.loadAccount(address);
+      const nativeBalance = accountData.balances.find(b => b.asset_type === "native");
+      setWalletBalanceMainnet(nativeBalance?.balance || "0");
+    } catch (err: any) {
+      const status = err?.response?.status;
+      const message = err?.message || "";
+      const notFound = status === 404 || /not found/i.test(message);
+      if (notFound) {
+        setWalletBalanceMainnet("0");
+        return;
+      }
+      console.error("Error fetching mainnet balance:", err);
     }
   };
 
@@ -453,8 +479,6 @@ export default function DashboardPage() {
     }
   };
 
-  const [isFunding, setIsFunding] = useState(false);
-
   const fundTestnetWallet = async () => {
     if (!stellarAddress) return;
     setIsFunding(true);
@@ -659,10 +683,13 @@ export default function DashboardPage() {
                   <div className="px-2 py-0.5 bg-yellow-500/10 text-yellow-500 text-[8px] font-black uppercase tracking-widest rounded border border-yellow-500/20">
                     Dev Only
                   </div>
-                  <h3 className="text-gray-400 font-bold text-xs uppercase tracking-widest">On-Chain Wallet (XLM)</h3>
+                  <h3 className="text-gray-400 font-bold text-xs uppercase tracking-widest">On-Chain Wallet (XLM Testnet)</h3>
                 </div>
                 <button 
-                  onClick={() => fetchVaultBalance(stellarAddress)}
+                  onClick={() => {
+                    fetchVaultBalance(stellarAddress);
+                    fetchMainnetBalance(stellarAddress);
+                  }}
                   disabled={!stellarAddress}
                   className="text-[10px] text-gray-600 hover:text-blue-400 disabled:text-gray-700 disabled:cursor-not-allowed transition-colors uppercase font-bold"
                 >
@@ -677,12 +704,28 @@ export default function DashboardPage() {
                 {isFunding ? "Funding..." : "Get Test XLM (Friendbot)"}
               </button>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-black text-gray-300">{Number(walletBalance).toLocaleString('de-DE', { minimumFractionDigits: 2 })}</span>
+                <span className="text-3xl font-black text-gray-300">{Number(walletBalanceTestnet).toLocaleString('de-DE', { minimumFractionDigits: 2 })}</span>
                 <span className="text-gray-600 font-bold text-xs uppercase">XLM</span>
               </div>
               <p className="text-[9px] text-gray-600 mt-2 leading-tight italic">
-                This shows the funds currently held in your landing pad wallet, not yet moved to the safe.
+                This shows the funds currently held in your landing pad wallet on testnet.
               </p>
+              <div className="mt-4 pt-4 border-t border-gray-800">
+                <p className="text-[9px] text-gray-500 uppercase font-bold tracking-widest mb-2">
+                  Mainnet Balance (XLM)
+                </p>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-black text-gray-300">
+                    {Number(walletBalanceMainnet).toLocaleString("de-DE", {
+                      minimumFractionDigits: 2,
+                    })}
+                  </span>
+                  <span className="text-gray-600 font-bold text-xs uppercase">XLM</span>
+                </div>
+                <p className="text-[9px] text-gray-600 mt-2 leading-tight italic">
+                  Mainnet balance for the same address.
+                </p>
+              </div>
               <div className="mt-4 pt-4 border-t border-gray-800">
                 <div className="flex items-center justify-between gap-2 mb-2">
                   <p className="text-[9px] text-gray-500 uppercase font-bold tracking-widest">

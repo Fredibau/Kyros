@@ -8,6 +8,7 @@ import { signIn, useSession } from "next-auth/react";
 import { startAuthentication, startRegistration } from "@simplewebauthn/browser";
 import { Keypair } from "@stellar/stellar-sdk";
 import { buildPrfInput, encryptSecret, extractPrfBytes, toArrayBuffer } from "@/lib/seedless/crypto";
+import ErrorAlert from "@/components/ui/ErrorAlert";
 
 export default function LoginButtons() {
   const router = useRouter();
@@ -17,6 +18,7 @@ export default function LoginButtons() {
 
   const [email, setEmail] = useState("");
   const [authMode, setAuthMode] = useState<"signup" | "login" | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -27,7 +29,8 @@ export default function LoginButtons() {
   const handleSeedlessLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    
+
+    setError(null);
     setLoading(true);
     try {
       // 1. Get registration options from server
@@ -38,6 +41,12 @@ export default function LoginButtons() {
       });
       const options = await optionsRes.json();
 
+      if (!optionsRes.ok) {
+        const message =
+          options?.error || `Failed to load passkey options (${optionsRes.status})`;
+        setError(message);
+        return;
+      }
       if (options.error) throw new Error(options.error);
 
       // 2. Trigger Passkey creation on the device
@@ -117,11 +126,11 @@ export default function LoginButtons() {
         }
         router.push("/dashboard");
       } else {
-        alert(data.error || "Passkey registration failed");
+        setError(data.error || "Passkey registration failed");
       }
     } catch (e: any) {
       console.error("Passkey failed", e);
-      alert(`Passkey error: ${e.message}`);
+      setError(`Passkey error: ${e.message}`);
     } finally {
       setLoading(false);
     }
@@ -131,6 +140,7 @@ export default function LoginButtons() {
     e.preventDefault();
     if (!email) return;
 
+    setError(null);
     setLoading(true);
     try {
       const optionsRes = await fetch(`${apiBase}/auth/passkey/generate-authentication`, {
@@ -143,17 +153,17 @@ export default function LoginButtons() {
       if (!optionsRes.ok) {
         const message =
           options?.error || `Failed to load passkey options (${optionsRes.status})`;
-        alert(message);
+        setError(message);
         return;
       }
 
       if (options.error) {
-        alert(options.error);
+        setError(options.error);
         return;
       }
 
       if (!options.userId) {
-        alert("User not found");
+        setError("User not found");
         return;
       }
 
@@ -173,7 +183,7 @@ export default function LoginButtons() {
       router.push("/dashboard");
     } catch (e: any) {
       console.error("Passkey login failed", e);
-      alert(`Passkey login error: ${e.message}`);
+      setError(`Passkey login error: ${e.message}`);
     } finally {
       setLoading(false);
     }
@@ -181,10 +191,18 @@ export default function LoginButtons() {
 
   return (
     <div className="flex flex-col gap-3 w-full">
+      <ErrorAlert
+        message={error}
+        onDismiss={() => setError(null)}
+        className="mb-2"
+      />
       {!authMode ? (
         <>
           <button
-            onClick={() => setAuthMode("signup")}
+            onClick={() => {
+              setError(null);
+              setAuthMode("signup");
+            }}
             disabled={loading}
             className="w-full bg-white text-black font-black py-4 rounded-2xl hover:bg-gray-200 transition-all shadow-xl flex items-center justify-center gap-3 group"
           >
@@ -194,7 +212,10 @@ export default function LoginButtons() {
             Continue with Email
           </button>
           <button
-            onClick={() => setAuthMode("login")}
+            onClick={() => {
+              setError(null);
+              setAuthMode("login");
+            }}
             disabled={loading}
             className="w-full border border-gray-800 text-white font-bold py-4 rounded-2xl hover:border-gray-700 transition-all shadow-xl"
           >
@@ -230,7 +251,10 @@ export default function LoginButtons() {
           </button>
           <button
             type="button"
-            onClick={() => setAuthMode(null)}
+            onClick={() => {
+              setError(null);
+              setAuthMode(null);
+            }}
             className="w-full text-xs text-gray-500 hover:text-white transition-colors uppercase font-bold tracking-widest"
           >
             Back

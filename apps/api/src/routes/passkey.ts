@@ -51,6 +51,11 @@ export async function passkeyRoutes(app: FastifyInstance) {
         include: { passkeys: true },
       });
     }
+    if (user.passkeys.length > 0) {
+      return reply
+        .code(409)
+        .send({ error: "Passkey already exists for this user" });
+    }
 
     const options = await generateRegistrationOptions({
       rpName,
@@ -85,6 +90,14 @@ export async function passkeyRoutes(app: FastifyInstance) {
 
     if (!user) {
       return reply.code(404).send({ error: "User not found" });
+    }
+    const existingPasskey = await prisma.passkey.findFirst({
+      where: { userId: user.id },
+    });
+    if (existingPasskey) {
+      return reply
+        .code(409)
+        .send({ error: "Passkey already exists for this user" });
     }
 
     const verification = await verifyRegistrationResponse({
