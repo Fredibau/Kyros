@@ -7,6 +7,9 @@ and put idle tax balances to work.
 This repository is prepared for our application to the Stellar Community Fund
 (SCF) Build track.
 
+![Kyros landing page: onboarding and value proposition](resources/LandingPage.jpg)
+_Landing page showing the onboarding entry point and the project value proposition._
+
 ## Problem
 Freelancers and small businesses often under-save for taxes. When they do set
 money aside, it sits idle in low-yield accounts, increasing cashflow stress and
@@ -32,6 +35,9 @@ contract vault:
 - Open banking connectors and tax-liability calculations in the API.
 - Soroban vault contract + TypeScript client package wired to testnet.
 - Testnet contract ID: `CA276HNZKSYAL6X5IH6VSZ4UC6V7AGRG3FAGOD2YDIO2ZVVB5REY4UXK`.
+
+![Kyros dashboard: tax vault and balances](resources/Dashboard.jpg)
+_Dashboard showing tax liability, vault balance, and bank connectivity._
 
 ## Seedless Non-Custodial Signup & Login
 We use passkeys (WebAuthn) for authentication and PRF-based key derivation.
