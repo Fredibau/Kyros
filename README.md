@@ -68,3 +68,6 @@ Login / vault action flow:
 
 ## Docs
 - Environment variables: `docs/environment-variables.md`
+
+## Notes
+- Please note that the code in this GitHub repository is limited. It includes a project overview and the basic code structure, but full implementation details are restricted due to product confidentiality.
